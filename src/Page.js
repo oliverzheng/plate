@@ -7,13 +7,15 @@ import {Value} from 'slate';
 
 import IndentableLine from './IndentableLine';
 
+const LINE_TYPE = 'line';
+const MAX_INDENT_LEVEL = 10;
 const INDENT_WIDTH = 30;
 
 const schema = {
   document: {
     nodes: [
       {
-        match: [{type: 'line'}],
+        match: [{type: LINE_TYPE}],
       },
     ],
   },
@@ -54,7 +56,7 @@ const initialValue = Value.fromJSON({
     nodes: [
       {
         object: 'block',
-        type: 'line',
+        type: LINE_TYPE,
         data: {
           indentLevel: 0,
         },
@@ -69,7 +71,7 @@ const initialValue = Value.fromJSON({
   },
 });
 
-const plugins = [IndentableLine('line', INDENT_WIDTH)];
+const plugins = [IndentableLine(LINE_TYPE, MAX_INDENT_LEVEL, INDENT_WIDTH)];
 
 export default function Page() {
   const [value, setValue] = useState(initialValue);
