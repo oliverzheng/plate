@@ -5,22 +5,43 @@ import React from 'react';
 import invariant from 'invariant';
 import Hotkeys from 'slate-hotkeys';
 
+export const INDENT_LEVEL_DATA_KEY = 'indentLevel';
+export const LINE_TYPE = 'indentableLine';
+export const DEFAULT_LINE_DATA = {
+  [INDENT_LEVEL_DATA_KEY]: 0,
+};
+
 export default function IndentableLine(
-  lineType: string,
   maxIndentLevel: number,
   indentWidth: number,
 ) {
   return {
+    schema: {
+      blocks: {
+        [LINE_TYPE]: {
+          data: {
+            [INDENT_LEVEL_DATA_KEY]: l => typeof l === 'number' && l >= 0,
+          },
+          nodes: [
+            {
+              match: {object: 'text'},
+            },
+          ],
+        },
+      },
+    },
     renderBlock(props: Object, editor: Object, next: Function) {
       const {node, attributes, children} = props;
 
-      if (node.type !== lineType) {
+      if (node.type !== LINE_TYPE) {
         return next();
       }
       return (
         <div
           {...attributes}
-          style={{marginLeft: indentWidth * node.data.get('indentLevel')}}>
+          style={{
+            marginLeft: indentWidth * node.data.get(INDENT_LEVEL_DATA_KEY),
+          }}>
           {children}
         </div>
       );
@@ -28,10 +49,10 @@ export default function IndentableLine(
     queries: {
       getLine(editor: Object, path: Object) {
         let node = editor.value.document.getNode(path);
-        if (node.type !== lineType) {
+        if (node.type !== LINE_TYPE) {
           node = editor.value.document.getClosest(
             path,
-            n => n.type === lineType,
+            n => n.type === LINE_TYPE,
           );
         }
         return node;
@@ -39,12 +60,12 @@ export default function IndentableLine(
       canIndentLine(editor: Object, path: Object) {
         const line = editor.getLine(path);
         invariant(line != null, 'Line cannot be null');
-        return line.data.get('indentLevel') < maxIndentLevel;
+        return line.data.get(INDENT_LEVEL_DATA_KEY) < maxIndentLevel;
       },
       canDeindentLine(editor: Object, path: Object) {
         const line = editor.getLine(path);
         invariant(line != null, 'Line cannot be null');
-        return line.data.get('indentLevel') > 0;
+        return line.data.get(INDENT_LEVEL_DATA_KEY) > 0;
       },
     },
     commands: {
@@ -62,7 +83,7 @@ export default function IndentableLine(
         invariant(line != null, 'Line cannot be null');
 
         editor.setNodeByPath(path, {
-          data: line.data.merge({indentLevel: newIndentLevel}),
+          data: line.data.merge({[INDENT_LEVEL_DATA_KEY]: newIndentLevel}),
         });
       },
     },
@@ -89,7 +110,7 @@ export default function IndentableLine(
       }
 
       const linePath = value.document.getPath(startBlock.key);
-      const indentLevel = startBlock.data.get('indentLevel');
+      const indentLevel = startBlock.data.get(INDENT_LEVEL_DATA_KEY);
 
       if (event.key === 'Tab') {
         event.preventDefault();

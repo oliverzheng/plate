@@ -5,9 +5,8 @@ import React, {useState} from 'react';
 import {Editor} from 'slate-react';
 import {Value} from 'slate';
 
-import IndentableLine from './IndentableLine';
+import IndentableLine, {LINE_TYPE, DEFAULT_LINE_DATA} from './IndentableLine';
 
-const LINE_TYPE = 'line';
 const MAX_INDENT_LEVEL = 10;
 const INDENT_WIDTH = 30;
 
@@ -19,36 +18,6 @@ const schema = {
       },
     ],
   },
-  blocks: {
-    line: {
-      data: {
-        indentLevel: l => typeof l === 'number' && l >= 0,
-      },
-      nodes: [
-        {
-          match: [{type: 'oli'}, {type: 'uli'}],
-          min: 0,
-          max: 1,
-        },
-        {
-          match: {object: 'text'},
-          min: 1,
-          max: 1,
-        },
-      ],
-    },
-  },
-  inlines: {
-    oli: {
-      data: {
-        listNumber: n => n == null || (typeof n === 'number' && n >= 0),
-      },
-      nodes: [],
-    },
-    uli: {
-      nodes: [],
-    },
-  },
 };
 
 const initialValue = Value.fromJSON({
@@ -58,7 +27,7 @@ const initialValue = Value.fromJSON({
         object: 'block',
         type: LINE_TYPE,
         data: {
-          indentLevel: 0,
+          ...DEFAULT_LINE_DATA,
         },
         nodes: [
           {
@@ -71,7 +40,7 @@ const initialValue = Value.fromJSON({
   },
 });
 
-const plugins = [IndentableLine(LINE_TYPE, MAX_INDENT_LEVEL, INDENT_WIDTH)];
+const plugins = [IndentableLine(MAX_INDENT_LEVEL, INDENT_WIDTH)];
 
 export default function Page() {
   const [value, setValue] = useState(initialValue);
