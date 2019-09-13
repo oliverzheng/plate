@@ -26,7 +26,7 @@ export default function IndentableLine(
       );
     },
     queries: {
-      getLine(editor, path) {
+      getLine(editor: Object, path: Object) {
         let node = editor.value.document.getNode(path);
         if (node.type !== lineType) {
           node = editor.value.document.getClosest(
@@ -36,19 +36,23 @@ export default function IndentableLine(
         }
         return node;
       },
-      canIndentLine(editor, path) {
+      canIndentLine(editor: Object, path: Object) {
         const line = editor.getLine(path);
         invariant(line != null, 'Line cannot be null');
         return line.data.get('indentLevel') < maxIndentLevel;
       },
-      canDeindentLine(editor, path) {
+      canDeindentLine(editor: Object, path: Object) {
         const line = editor.getLine(path);
         invariant(line != null, 'Line cannot be null');
         return line.data.get('indentLevel') > 0;
       },
     },
     commands: {
-      setLineIndentLevelByPath(editor, path, newIndentLevel) {
+      setLineIndentLevelByPath(
+        editor: Object,
+        path: Object,
+        newIndentLevel: number,
+      ) {
         invariant(
           newIndentLevel >= 0 && newIndentLevel <= maxIndentLevel,
           `Indent level must > 0 and <= maxIndentLevel(${maxIndentLevel})`,
