@@ -3,6 +3,7 @@
 
 import React from 'react';
 import invariant from 'invariant';
+import {Block} from 'slate';
 import Hotkeys from 'slate-hotkeys';
 
 export const LINE_TYPE = 'indentableLine';
@@ -31,8 +32,13 @@ export const DEFAULT_LINE_NODE = {
 export default function IndentableLine(
   maxIndentLevel: number,
   indentWidth: number,
-  prefixTypes: Array<string>,
+  prefixTypeToData: {
+    [prefixType: string]: (
+      prefixText: string,
+    ) => ?{truncatePrefixLength: number, data: Object},
+  },
 ) {
+  const prefixTypes = Object.keys(prefixTypeToData);
   return {
     schema: {
       blocks: {
@@ -225,6 +231,50 @@ export default function IndentableLine(
         focus.path.get(1) === 0
       ) {
         editor.moveFocusTo(editor.getFrontOfLineTextPath(focus.path), 0);
+      }
+      return next();
+    },
+    normalizeNode(node: Object, editor: Object, next: Function) {
+      if (node.type !== LINE_TEXT_TYPE) {
+        return next();
+      }
+      const {nodes} = node;
+      const textNode = nodes.first();
+      const nodeText = nodes.first().text;
+      if (nodeText === '') {
+        return next();
+      }
+      const lineNode = editor.value.document.getParent(node.key);
+      const existingPrefixNode =
+        lineNode.nodes.size === 2 ? lineNode.nodes.first() : null;
+      for (const prefixType in prefixTypeToData) {
+        if (existingPrefixNode && existingPrefixNode.type === prefixType) {
+          continue;
+        }
+        const prefixMatch = prefixTypeToData[prefixType](nodeText);
+        if (prefixMatch) {
+          const {truncatePrefixLength, data} = prefixMatch;
+          return () => {
+            if (existingPrefixNode) {
+              // We already have a prefix. Change it.
+              editor.setNodeByKey(lineNode.nodes.first().key, {
+                type: prefixType,
+                data,
+              });
+            } else {
+              editor.insertNodeByKey(
+                lineNode.key,
+                0,
+                Block.create({
+                  type: prefixType,
+                  data,
+                  nodes: [{object: 'text', text: ''}],
+                }),
+              );
+            }
+            editor.removeTextByKey(textNode.key, 0, truncatePrefixLength);
+          };
+        }
       }
       return next();
     },

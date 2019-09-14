@@ -8,6 +8,7 @@ import {Value} from 'slate';
 import IndentableLine, {LINE_TYPE, DEFAULT_LINE_NODE} from './IndentableLine';
 import UnorderedListItemPrefix, {
   UNORDERED_LIST_ITEM_TYPE,
+  unorderedListItemPrefixTextToData,
 } from './UnorderedListItemPrefix';
 
 const MAX_INDENT_LEVEL = 14;
@@ -30,7 +31,9 @@ const initialValue = Value.fromJSON({
 });
 
 const plugins = [
-  IndentableLine(MAX_INDENT_LEVEL, INDENT_WIDTH, [UNORDERED_LIST_ITEM_TYPE]),
+  IndentableLine(MAX_INDENT_LEVEL, INDENT_WIDTH, {
+    [UNORDERED_LIST_ITEM_TYPE]: unorderedListItemPrefixTextToData,
+  }),
   UnorderedListItemPrefix(INDENT_WIDTH),
 ];
 

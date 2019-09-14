@@ -6,6 +6,16 @@ import React from 'react';
 import createPrefixRenderBlock from './createPrefixRenderBlock';
 
 export const UNORDERED_LIST_ITEM_TYPE = 'uli';
+export const unorderedListItemPrefixTextToData = (text: string) => {
+  if (text.startsWith('- ') || text.startsWith('* ')) {
+    return {
+      truncatePrefixLength: 2,
+      data: {},
+    };
+  } else {
+    return null;
+  }
+};
 
 export default function UnorderedListItemPrefix(indentWidth: number) {
   return {
