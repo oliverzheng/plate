@@ -108,6 +108,7 @@ export default function IndentableLine(
           <div
             {...attributes}
             style={{
+              display: 'flex',
               marginLeft: indentWidth * node.data.get(INDENT_LEVEL_DATA_KEY),
             }}>
             {children}
