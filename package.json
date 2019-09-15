@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "electron-debug": "^3.0.1",
+    "electron-log": "^3.0.8",
+    "electron-updater": "^4.1.2",
     "immutable": "^4.0.0-rc.12",
     "invariant": "^2.2.4",
     "nullthrows": "^1.1.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "react-hot-loader": "^4.12.13",
     "react-scripts": "3.1.1",
     "slate": "^0.47.8",
     "slate-hotkeys": "^0.2.9",
@@ -18,7 +22,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron:dev": "yarn electron:start-renderer-dev",
+    "electron:start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r @babel/register ./src/electron/main.dev.js",
+    "electron:start-renderer-dev": "cross-env NODE_ENV=development webpack-dev-server --config configs/webpack.config.renderer.dev.babel.js",
+    "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -38,6 +46,15 @@
   "devDependencies": {
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-flow": "^7.0.0",
-    "flow-bin": "^0.107.0"
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.6.0",
+    "babel-loader": "^8.0.6",
+    "cross-env": "^5.2.1",
+    "electron": "^6.0.9",
+    "electron-devtools-installer": "^2.2.4",
+    "flow-bin": "^0.107.0",
+    "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.8.0",
+    "webpack-merge": "^4.2.2"
   }
 }
