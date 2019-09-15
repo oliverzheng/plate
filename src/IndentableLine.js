@@ -247,6 +247,9 @@ export default function IndentableLine(
       const lineNode = editor.value.document.getParent(node.key);
       const existingPrefixNode =
         lineNode.nodes.size === 2 ? lineNode.nodes.first() : null;
+      // Eslint bug: https://github.com/eslint/eslint/issues/12117. Need to wait
+      // for react-scripts/create-react-app to update a release upstream.
+      // eslint-disable-next-line no-unused-vars
       for (const prefixType in prefixTypeToData) {
         if (existingPrefixNode && existingPrefixNode.type === prefixType) {
           continue;
