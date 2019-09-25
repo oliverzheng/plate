@@ -5,4 +5,16 @@
 
 import editor from '../editor';
 
-editor('root');
+const fileIO = {
+  listFiles: () => {
+    throw new Error('NYI');
+  },
+  readFile: filename => {
+    throw new Error('NYI');
+  },
+  writeFile: (filename, contents) => {
+    throw new Error('NYI');
+  },
+};
+
+editor('root', fileIO);

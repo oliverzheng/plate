@@ -6,7 +6,13 @@ import ReactDOM from 'react-dom';
 import nullthrows from 'nullthrows';
 import './index.css';
 import App from './App';
+import type {FileIO} from './App';
 
-export default function index(rootElementID: string) {
-  ReactDOM.render(<App />, nullthrows(document.getElementById(rootElementID)));
+export type {FileIO} from './App';
+
+export default function index(rootElementID: string, fileIO: FileIO) {
+  ReactDOM.render(
+    <App fileIO={fileIO} />,
+    nullthrows(document.getElementById(rootElementID)),
+  );
 }

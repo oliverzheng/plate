@@ -1,10 +1,11 @@
 // @flow
 // @format
 
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {Editor} from 'slate-react';
 import {Value} from 'slate';
 
+import useDelayedCallback from './useDelayedCallback';
 import IndentableLine, {LINE_TYPE, DEFAULT_LINE_NODE} from './IndentableLine';
 import UnorderedListItemPrefix, {
   UNORDERED_LIST_ITEM_TYPE,
@@ -15,6 +16,7 @@ import CheckboxPrefix, {
   checkboxPrefixTextToData,
 } from './CheckboxPrefix';
 
+const FILE_SAVE_DELAY = 1500; //ms
 const MAX_INDENT_LEVEL = 14;
 const INDENT_WIDTH = 20;
 
@@ -46,6 +48,10 @@ const plugins = [
 export default function Page() {
   const [value, setValue] = useState(initialValue);
   const [selection, setSelection] = useState(null);
+  const delayCallback = useDelayedCallback(
+    FILE_SAVE_DELAY,
+    useCallback(() => console.log('saved'), []),
+  );
   return (
     <div>
       <Editor
@@ -54,6 +60,7 @@ export default function Page() {
         onChange={({value}) => {
           setValue(value);
           setSelection(value.selection);
+          delayCallback();
         }}
         plugins={plugins}
       />
