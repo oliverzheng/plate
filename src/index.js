@@ -1,10 +1,8 @@
 // @flow
 // @format
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import nullthrows from 'nullthrows';
-import './index.css';
-import App from './editor/App';
+// This is the create-react-app web app entry point
 
-ReactDOM.render(<App />, nullthrows(document.getElementById('root')));
+import editor from './editor';
+
+editor('root');
