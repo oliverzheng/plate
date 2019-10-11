@@ -17,6 +17,7 @@ import CheckboxPrefix, {
 } from './CheckboxPrefix';
 
 const FILE_SAVE_DELAY = 1500; //ms
+const SHOW_SAVED_NOTICE = 2000; //ms
 const MAX_INDENT_LEVEL = 14;
 const INDENT_WIDTH = 20;
 
@@ -45,25 +46,46 @@ const plugins = [
   CheckboxPrefix(INDENT_WIDTH),
 ];
 
-export default function Page() {
-  const [value, setValue] = useState(initialValue);
-  const [selection, setSelection] = useState(null);
-  const delayCallback = useDelayedCallback(
-    FILE_SAVE_DELAY,
-    useCallback(() => console.log('saved'), []),
+type Props = {
+  value: Value,
+  onChange: (newValue: Value) => void,
+  onSave: (newValue: Value) => void,
+};
+
+export default function Page(props: Props) {
+  const value = props.value || initialValue;
+
+  const [showSaved, setShowSaved] = useState(false);
+  const delayHideSavedNotice = useDelayedCallback(
+    SHOW_SAVED_NOTICE,
+    useCallback(() => {
+      setShowSaved(false);
+    }, [setShowSaved]),
   );
+
+  const [selection, setSelection] = useState(null);
+  const delaySave = useDelayedCallback(
+    FILE_SAVE_DELAY,
+    useCallback(() => {
+      props.onSave(value);
+      setShowSaved(true);
+      delayHideSavedNotice();
+    }, [value, props.onSave]),
+  );
+
   return (
     <div>
       <Editor
         schema={schema}
         value={value}
         onChange={({value}) => {
-          setValue(value);
+          props.onChange(value);
           setSelection(value.selection);
-          delayCallback();
+          delaySave();
         }}
         plugins={plugins}
       />
+      {showSaved ? <p>Saved</p> : null}
       <pre>{selection && JSON.stringify(selection.toJSON(), null, '  ')}</pre>
       <pre>{JSON.stringify(value.toJSON(), null, '  ')}</pre>
     </div>
