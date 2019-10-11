@@ -78,10 +78,13 @@ export default function Page(props: Props) {
       <Editor
         schema={schema}
         value={value}
-        onChange={({value}) => {
-          props.onChange(value);
-          setSelection(value.selection);
-          delaySave();
+        onChange={change => {
+          const newValue = change.value;
+          props.onChange(newValue);
+          setSelection(newValue.selection);
+          if (newValue.document !== value.document) {
+            delaySave();
+          }
         }}
         plugins={plugins}
       />
