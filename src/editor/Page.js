@@ -73,6 +73,17 @@ export default function Page(props: Props) {
     }, [value, props.onSave]),
   );
 
+  const [showDebug, setShowDebug] = useState(false);
+
+  let debug = null;
+  if (showDebug) {
+    debug = (
+      <div>
+        <pre>{selection && JSON.stringify(selection.toJSON(), null, '  ')}</pre>
+        <pre>{JSON.stringify(value.toJSON(), null, '  ')}</pre>
+      </div>
+    );
+  }
   return (
     <div>
       <Editor
@@ -88,9 +99,13 @@ export default function Page(props: Props) {
         }}
         plugins={plugins}
       />
+      <p>
+        <button onClick={() => setShowDebug(!showDebug)}>
+          {showDebug ? 'Hide debug' : 'Show debug'}
+        </button>
+      </p>
       {showSaved ? <p>Saved</p> : null}
-      <pre>{selection && JSON.stringify(selection.toJSON(), null, '  ')}</pre>
-      <pre>{JSON.stringify(value.toJSON(), null, '  ')}</pre>
+      {debug}
     </div>
   );
 }
