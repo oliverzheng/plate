@@ -68,11 +68,14 @@ export default function Page(props: Props) {
   const [selection, setSelection] = useState(null);
   const delaySave = useDelayedCallback(
     FILE_SAVE_DELAY,
-    useCallback(() => {
-      props.onSave(value);
-      setShowSaved(true);
-      delayHideSavedNotice();
-    }, [value, props.onSave]),
+    useCallback(
+      valueToSave => {
+        props.onSave(valueToSave);
+        setShowSaved(true);
+        delayHideSavedNotice();
+      },
+      [props.onSave],
+    ),
   );
 
   const [showDebug, setShowDebug] = useState(false);
@@ -96,7 +99,7 @@ export default function Page(props: Props) {
           props.onChange(newValue);
           setSelection(newValue.selection);
           if (newValue.document !== value.document) {
-            delaySave();
+            delaySave(newValue);
           }
         }}
         plugins={plugins}
