@@ -162,6 +162,54 @@ export default function IndentableLine(
           data: line.data.merge({[INDENT_LEVEL_DATA_KEY]: newIndentLevel}),
         });
       },
+      moveLinesByPath(
+        editor: Object,
+        startLinePath: Object,
+        endLinePath: Object,
+        offset: number,
+      ) {
+        const startLine = editor.getLine(startLinePath);
+        const endLine = editor.getLine(endLinePath);
+        invariant(startLine != null, 'startLine cannot be null');
+        invariant(endLine != null, 'endLine cannot be null');
+        const doc = editor.value.document;
+
+        const startIdx = startLinePath.get(0);
+        const endIdx = endLinePath.get(0) + 1;
+        invariant(
+          endIdx > startIdx,
+          `endIdx (${endIdx}) must be bigger than startIdx (${startIdx})`,
+        );
+        const totalLength = doc.nodes.size;
+        const newStartIdx = startIdx + offset;
+        const newEndIdx = endIdx + offset;
+        if (newStartIdx < 0 || newEndIdx > totalLength) {
+          return false;
+        }
+        if (offset === 0) {
+          return true;
+        }
+
+        const documentPath = startLinePath.setSize(0);
+        if (offset < 0) {
+          for (let idx = startIdx; idx < endIdx; idx++) {
+            editor.moveNodeByPath(
+              startLinePath.set(0, idx),
+              documentPath,
+              idx + offset,
+            );
+          }
+        } else {
+          // Move nodes last-one-first if we are moving them further down
+          for (let idx = endIdx - 1; idx >= startIdx; idx--) {
+            editor.moveNodeByPath(
+              startLinePath.set(0, idx),
+              documentPath,
+              idx + offset,
+            );
+          }
+        }
+      },
     },
     onKeyDown(event: Object, editor: Object, next: Function) {
       const {value} = editor;

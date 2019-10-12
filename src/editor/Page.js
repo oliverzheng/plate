@@ -15,6 +15,7 @@ import CheckboxPrefix, {
   CHECKBOX_ITEM_TYPE,
   checkboxPrefixTextToData,
 } from './CheckboxPrefix';
+import {moveLineUp} from './shortcuts';
 
 const FILE_SAVE_DELAY = 1500; //ms
 const SHOW_SAVED_NOTICE = 2000; //ms
@@ -44,6 +45,7 @@ const plugins = [
   }),
   UnorderedListItemPrefix(INDENT_WIDTH),
   CheckboxPrefix(INDENT_WIDTH),
+  moveLineUp(),
 ];
 
 type Props = {
