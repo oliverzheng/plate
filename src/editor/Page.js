@@ -6,7 +6,7 @@ import {Editor} from 'slate-react';
 import {Value} from 'slate';
 
 import useDelayedCallback from './useDelayedCallback';
-import IndentableLine, {LINE_TYPE, DEFAULT_LINE_NODE} from './IndentableLine';
+import Line, {LINE_TYPE, DEFAULT_LINE_NODE} from './Line';
 import UnorderedListItemPrefix, {
   UNORDERED_LIST_ITEM_TYPE,
   unorderedListItemPrefixTextToData,
@@ -16,6 +16,7 @@ import CheckboxPrefix, {
   checkboxPrefixTextToData,
 } from './CheckboxPrefix';
 import {moveLineUp} from './shortcuts';
+import Indentable from './plugins/Indentable';
 
 const FILE_SAVE_DELAY = 1500; //ms
 const SHOW_SAVED_NOTICE = 2000; //ms
@@ -39,13 +40,11 @@ const initialValue = Value.fromJSON({
 });
 
 const plugins = [
-  IndentableLine(MAX_INDENT_LEVEL, INDENT_WIDTH, {
-    [UNORDERED_LIST_ITEM_TYPE]: unorderedListItemPrefixTextToData,
-    [CHECKBOX_ITEM_TYPE]: checkboxPrefixTextToData,
+  Indentable({
+    indentWidth: 20,
+    maxIndentLevels: 10,
   }),
-  UnorderedListItemPrefix(INDENT_WIDTH),
-  CheckboxPrefix(INDENT_WIDTH),
-  moveLineUp(),
+  Line(),
 ];
 
 type Props = {
