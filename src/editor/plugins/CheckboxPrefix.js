@@ -13,6 +13,9 @@ export const CHECKBOX_PREFIX_DEFAULT_DATA = {
 };
 const UNCHECKED_PREFIXES = ['[] ', '[ ] '];
 const CHECKED_PREFIXES = ['[x] ', '[X] '];
+const CHECKBOX_SIZE = 15;
+const MARGIN_RIGHT = 4;
+const MARGIN_TOP = 2;
 
 export function checkboxPrefixEnabled(editor: Object): boolean {
   return editor.hasQuery('getCheckboxPrefixWidth');
@@ -72,10 +75,8 @@ export function renderCheckboxPrefix(
   const CHECKBOX_PREFIX_CLASSNAME = `checkbox-prefix-node-${
     isChecked ? 'checked' : 'unchecked'
   }`;
-  const CHECKBOX_SIZE = 15;
   const prefixWidth = editor.getCheckboxPrefixWidth();
-  const marginRight = 4;
-  const marginLeft = prefixWidth - CHECKBOX_SIZE - marginRight;
+  const marginLeft = prefixWidth - CHECKBOX_SIZE - MARGIN_RIGHT;
   return {
     className: CHECKBOX_PREFIX_CLASSNAME,
     styleNode: (
@@ -91,7 +92,7 @@ export function renderCheckboxPrefix(
           height: ${CHECKBOX_SIZE}px;
           border: 1px solid #CCC;
           border-radius: 5px;
-          margin: 2px ${marginRight}px 0 ${marginLeft}px;
+          margin: ${MARGIN_TOP}px ${MARGIN_RIGHT}px 0 ${marginLeft}px;
           content: '${isChecked ? '✓' : ''}';
           text-align: center;
           cursor: pointer;
@@ -101,6 +102,24 @@ export function renderCheckboxPrefix(
       />
     ),
   };
+}
+
+export function eventOffsetOnCheckbox(
+  editor: Object,
+  offsetX: number,
+  offsetY: number,
+): boolean {
+  if (!checkboxPrefixEnabled(editor)) {
+    return false;
+  }
+  const prefixWidth = editor.getCheckboxPrefixWidth();
+  const marginLeft = prefixWidth - CHECKBOX_SIZE - MARGIN_RIGHT;
+  return (
+    offsetX >= marginLeft &&
+    offsetX <= marginLeft + CHECKBOX_SIZE &&
+    offsetY >= MARGIN_TOP &&
+    offsetY <= MARGIN_TOP + CHECKBOX_SIZE
+  );
 }
 
 export function hasCheckboxPrefix(editor: Object, node: Object): boolean {
@@ -122,18 +141,20 @@ export function isCheckboxPrefixChecked(editor: Object, node: Object): boolean {
 export function prefixWithCheckboxByPath(
   editor: Object,
   path: Object,
-  checked: boolean,
+  checked: ?boolean, // null = toggle
 ): void {
   if (!checkboxPrefixEnabled(editor)) {
     return;
   }
   const node = editor.value.document.getNode(path);
-  if (hasCheckboxPrefix(editor, node)) {
+  const oldValue = node.data.get(CHECKBOX_PREFIX_DATA_KEY);
+  const newValue = checked == null ? !oldValue : checked;
+  if (oldValue === newValue) {
     return;
   }
 
   editor.setNodeByPath(path, {
-    data: node.data.merge({[CHECKBOX_PREFIX_DATA_KEY]: checked}),
+    data: node.data.merge({[CHECKBOX_PREFIX_DATA_KEY]: newValue}),
   });
 }
 

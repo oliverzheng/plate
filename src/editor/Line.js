@@ -29,6 +29,7 @@ import {
   getTextCheckboxPrefix,
   prefixWithCheckboxByPath,
   unprefixWithCheckboxByPath,
+  eventOffsetOnCheckbox,
 } from './plugins/CheckboxPrefix';
 
 export const LINE_TYPE = 'line';
@@ -71,6 +72,7 @@ export default function Line() {
       }
 
       if (node.type === LINE_TYPE) {
+        const nodePath = editor.value.document.getPath(node);
         const bulletPrefixRender = renderBulletPrefix(editor, node);
         const checkboxPrefixRender = renderCheckboxPrefix(editor, node);
         return (
@@ -85,6 +87,24 @@ export default function Line() {
             style={{
               display: 'flex',
               ...renderIndentableStyle(editor, node),
+            }}
+            onClick={e => {
+              if (editor.findDOMNode(nodePath) !== e.nativeEvent.srcElement) {
+                return;
+              }
+              if (hasCheckboxPrefix(editor, node)) {
+                if (
+                  eventOffsetOnCheckbox(
+                    editor,
+                    e.nativeEvent.offsetX,
+                    e.nativeEvent.offsetY,
+                  )
+                ) {
+                  prefixWithCheckboxByPath(editor, nodePath, null /*toggle*/);
+                  // Can't prevent Slate from changing focus. Its event handlers
+                  // trigger first onmousedown
+                }
+              }
             }}>
             {bulletPrefixRender && bulletPrefixRender.styleNode}
             {checkboxPrefixRender && checkboxPrefixRender.styleNode}
