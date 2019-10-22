@@ -9,11 +9,18 @@ import Hotkeys from 'slate-hotkeys';
 
 import {
   INDENTABLE_DEFAULT_DATA,
-  INDENTABLE_DATA_SCHEMA,
   renderIndentableStyle,
   getIndentEvent,
   indentByPath,
 } from './plugins/Indentable';
+import {
+  BULLET_PREFIX_DEFAULT_DATA,
+  renderBulletPrefix,
+  hasBulletPrefix,
+  getTextBulletPrefix,
+  prefixWithBulletByPath,
+  unprefixWithBulletByPath,
+} from './plugins/BulletPrefix';
 
 export const LINE_TYPE = 'line';
 export const DEFAULT_LINE_NODE = {
@@ -21,6 +28,7 @@ export const DEFAULT_LINE_NODE = {
   type: LINE_TYPE,
   data: {
     ...INDENTABLE_DEFAULT_DATA,
+    ...BULLET_PREFIX_DEFAULT_DATA,
   },
   nodes: [
     {
@@ -30,24 +38,21 @@ export const DEFAULT_LINE_NODE = {
   ],
 };
 
+function getLineTextNode(lineNode: Object): Object {
+  return lineNode.nodes.get(-1);
+}
+
+function isPointAtStartOfLine(point: Object, lineNode: Object): boolean {
+  const textNode = getLineTextNode(lineNode);
+  return point.key === textNode.key && point.offset === 0;
+}
+
+function getLinePathFromSubPath(subPath: Object): Object {
+  return subPath.setSize(1);
+}
+
 export default function Line() {
   return {
-    schema: {
-      blocks: {
-        [LINE_TYPE]: {
-          data: {
-            ...INDENTABLE_DATA_SCHEMA,
-          },
-          nodes: [
-            {
-              match: {object: 'text'},
-              min: 1,
-              max: 1,
-            },
-          ],
-        },
-      },
-    },
     renderBlock(props: Object, editor: Object, next: Function) {
       const {node, attributes, children} = props;
 
@@ -56,14 +61,16 @@ export default function Line() {
       }
 
       if (node.type === LINE_TYPE) {
+        const bulletPrefixRender = renderBulletPrefix(editor, node);
         return (
           <div
             {...attributes}
+            className={bulletPrefixRender && bulletPrefixRender.className}
             style={{
               display: 'flex',
-              //marginLeft: indentWidth * node.data.get(INDENT_LEVEL_DATA_KEY),
               ...renderIndentableStyle(editor, node),
             }}>
+            {bulletPrefixRender && bulletPrefixRender.styleNode}
             {children}
           </div>
         );
@@ -83,13 +90,14 @@ export default function Line() {
       ): Object {
         return List([startingLinePath.get(0) + nth]);
       },
-      isPointAtStartOfLine(editor: Object, point: Point): boolean {
-        return point.path.size === 2 && point.offset === 0;
-      },
     },
     onKeyDown(event: Object, editor: Object, next: Function) {
+      const {selection} = editor.value;
+      const {start, end} = selection;
+      const startLinePath = getLinePathFromSubPath(start.path);
+      const lineNode = editor.value.document.getNode(startLinePath);
+
       const getSelectedNodes = () => {
-        const {start, end} = editor.value.selection;
         const startLinePath = editor.getLinePathFromDescendentPath(start.path);
         const endLinePath = editor.getLinePathFromDescendentPath(end.path);
         const totalCount = endLinePath.get(0) - startLinePath.get(0) + 1;
@@ -97,15 +105,26 @@ export default function Line() {
           editor.getLinePathNthAway(startLinePath, i),
         );
         return {
-          isSelectionStartAtStartOfFirstNode: editor.isPointAtStartOfLine(
+          isSelectionStartAtStartOfFirstNode: isPointAtStartOfLine(
             start,
+            lineNode,
           ),
           nodeKeysOrPaths: nodePaths,
         };
       };
 
       const indentEvent = getIndentEvent(editor, event, getSelectedNodes);
-      if (indentEvent) {
+      if (
+        selection.isCollapsed &&
+        isPointAtStartOfLine(start, lineNode) &&
+        (Hotkeys.isDeleteBackward(event) ||
+          Hotkeys.isDeleteLineBackward(event) ||
+          Hotkeys.isDeleteWordBackward(event)) &&
+        hasBulletPrefix(editor, lineNode)
+      ) {
+        unprefixWithBulletByPath(editor, startLinePath);
+        return;
+      } else if (indentEvent) {
         event.preventDefault();
         if (indentEvent.actionable) {
           getSelectedNodes().nodeKeysOrPaths.forEach(path =>
@@ -113,6 +132,24 @@ export default function Line() {
           );
         }
         return;
+      }
+
+      return next();
+    },
+    normalizeNode(node: Object, editor: Object, next: Function) {
+      if (node.type !== LINE_TYPE) {
+        return next();
+      }
+
+      const textNode = getLineTextNode(node);
+      const nodeText = textNode.text;
+      const textBulletPrefix = getTextBulletPrefix(editor, nodeText);
+      if (textBulletPrefix) {
+        const linePath = editor.value.document.getPath(node);
+        return () => {
+          editor.removeTextByKey(textNode.key, 0, textBulletPrefix.length);
+          prefixWithBulletByPath(editor, linePath);
+        };
       }
 
       return next();

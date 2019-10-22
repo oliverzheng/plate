@@ -9,9 +9,6 @@ import Hotkeys from 'slate-hotkeys';
 
 const INDENT_LEVEL_DATA_KEY = 'indentLevel';
 
-export const INDENTABLE_DATA_SCHEMA = {
-  [INDENT_LEVEL_DATA_KEY]: (l: any) => typeof l === 'number' && l >= 0,
-};
 export const INDENTABLE_DEFAULT_DATA = {
   [INDENT_LEVEL_DATA_KEY]: 0,
 };

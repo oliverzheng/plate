@@ -17,6 +17,7 @@ import CheckboxPrefix, {
 } from './CheckboxPrefix';
 import {moveLineUp} from './shortcuts';
 import Indentable from './plugins/Indentable';
+import BulletPrefix from './plugins/BulletPrefix';
 
 const FILE_SAVE_DELAY = 1500; //ms
 const SHOW_SAVED_NOTICE = 2000; //ms
@@ -44,6 +45,7 @@ const plugins = [
     indentWidth: 20,
     maxIndentLevels: 10,
   }),
+  BulletPrefix({prefixWidth: 20}),
   Line(),
 ];
 
