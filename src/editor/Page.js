@@ -7,14 +7,6 @@ import {Value} from 'slate';
 
 import useDelayedCallback from './useDelayedCallback';
 import Line, {LINE_TYPE, DEFAULT_LINE_NODE} from './Line';
-import UnorderedListItemPrefix, {
-  UNORDERED_LIST_ITEM_TYPE,
-  unorderedListItemPrefixTextToData,
-} from './UnorderedListItemPrefix';
-import CheckboxPrefix, {
-  CHECKBOX_ITEM_TYPE,
-  checkboxPrefixTextToData,
-} from './CheckboxPrefix';
 import {moveLineUp} from './shortcuts';
 import Indentable from './plugins/Indentable';
 import BulletPrefix from './plugins/BulletPrefix';
