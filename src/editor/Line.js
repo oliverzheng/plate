@@ -12,6 +12,7 @@ import {
   renderIndentableStyle,
   getIndentEvent,
   indentByPath,
+  canUnindent,
 } from './plugins/Indentable';
 import {
   BULLET_PREFIX_DEFAULT_DATA,
@@ -21,6 +22,14 @@ import {
   prefixWithBulletByPath,
   unprefixWithBulletByPath,
 } from './plugins/BulletPrefix';
+import {
+  CHECKBOX_PREFIX_DEFAULT_DATA,
+  renderCheckboxPrefix,
+  hasCheckboxPrefix,
+  getTextCheckboxPrefix,
+  prefixWithCheckboxByPath,
+  unprefixWithCheckboxByPath,
+} from './plugins/CheckboxPrefix';
 
 export const LINE_TYPE = 'line';
 export const DEFAULT_LINE_NODE = {
@@ -29,6 +38,7 @@ export const DEFAULT_LINE_NODE = {
   data: {
     ...INDENTABLE_DEFAULT_DATA,
     ...BULLET_PREFIX_DEFAULT_DATA,
+    ...CHECKBOX_PREFIX_DEFAULT_DATA,
   },
   nodes: [
     {
@@ -62,15 +72,22 @@ export default function Line() {
 
       if (node.type === LINE_TYPE) {
         const bulletPrefixRender = renderBulletPrefix(editor, node);
+        const checkboxPrefixRender = renderCheckboxPrefix(editor, node);
         return (
           <div
             {...attributes}
-            className={bulletPrefixRender && bulletPrefixRender.className}
+            className={[
+              bulletPrefixRender && bulletPrefixRender.className,
+              checkboxPrefixRender && checkboxPrefixRender.className,
+            ]
+              .filter(Boolean)
+              .join(' ')}
             style={{
               display: 'flex',
               ...renderIndentableStyle(editor, node),
             }}>
             {bulletPrefixRender && bulletPrefixRender.styleNode}
+            {checkboxPrefixRender && checkboxPrefixRender.styleNode}
             {children}
           </div>
         );
@@ -119,11 +136,18 @@ export default function Line() {
         isPointAtStartOfLine(start, lineNode) &&
         (Hotkeys.isDeleteBackward(event) ||
           Hotkeys.isDeleteLineBackward(event) ||
-          Hotkeys.isDeleteWordBackward(event)) &&
-        hasBulletPrefix(editor, lineNode)
+          Hotkeys.isDeleteWordBackward(event))
       ) {
-        unprefixWithBulletByPath(editor, startLinePath);
-        return;
+        if (hasBulletPrefix(editor, lineNode)) {
+          unprefixWithBulletByPath(editor, startLinePath);
+          return;
+        } else if (hasCheckboxPrefix(editor, lineNode)) {
+          unprefixWithCheckboxByPath(editor, startLinePath);
+          return;
+        } else if (canUnindent(editor, startLinePath)) {
+          indentByPath(editor, startLinePath, 'unindent');
+          return;
+        }
       } else if (indentEvent) {
         event.preventDefault();
         if (indentEvent.actionable) {
@@ -141,14 +165,31 @@ export default function Line() {
         return next();
       }
 
+      const linePath = editor.value.document.getPath(node);
+      const removeAllPrefixes = () => {
+        unprefixWithBulletByPath(editor, linePath);
+        unprefixWithCheckboxByPath(editor, linePath);
+      };
+
       const textNode = getLineTextNode(node);
       const nodeText = textNode.text;
       const textBulletPrefix = getTextBulletPrefix(editor, nodeText);
+      const textCheckboxPrefix = getTextCheckboxPrefix(editor, nodeText);
       if (textBulletPrefix) {
-        const linePath = editor.value.document.getPath(node);
         return () => {
           editor.removeTextByKey(textNode.key, 0, textBulletPrefix.length);
+          removeAllPrefixes();
           prefixWithBulletByPath(editor, linePath);
+        };
+      } else if (textCheckboxPrefix) {
+        return () => {
+          editor.removeTextByKey(textNode.key, 0, textCheckboxPrefix.length);
+          removeAllPrefixes();
+          prefixWithCheckboxByPath(
+            editor,
+            linePath,
+            textCheckboxPrefix.checked,
+          );
         };
       }
 

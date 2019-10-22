@@ -10,6 +10,7 @@ import Line, {LINE_TYPE, DEFAULT_LINE_NODE} from './Line';
 import {moveLineUp} from './shortcuts';
 import Indentable from './plugins/Indentable';
 import BulletPrefix from './plugins/BulletPrefix';
+import CheckboxPrefix from './plugins/CheckboxPrefix';
 
 const FILE_SAVE_DELAY = 1500; //ms
 const SHOW_SAVED_NOTICE = 2000; //ms
@@ -38,6 +39,7 @@ const plugins = [
     maxIndentLevels: 10,
   }),
   BulletPrefix({prefixWidth: 20}),
+  CheckboxPrefix({prefixWidth: 20}),
   Line(),
 ];
 
