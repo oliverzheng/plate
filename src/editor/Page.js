@@ -7,7 +7,6 @@ import {Value} from 'slate';
 
 import useDelayedCallback from './useDelayedCallback';
 import Line, {LINE_TYPE, createLine} from './Line';
-import {moveLineUp} from './shortcuts';
 import Indentable from './plugins/Indentable';
 import BulletPrefix from './plugins/BulletPrefix';
 import CheckboxPrefix from './plugins/CheckboxPrefix';
