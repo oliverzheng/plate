@@ -13,12 +13,14 @@ export const CHECKBOX_PREFIX_DEFAULT_DATA = {
 };
 const UNCHECKED_PREFIXES = ['[] ', '[ ] '];
 const CHECKED_PREFIXES = ['[x] ', '[X] '];
-const CHECKBOX_SIZE = 15;
-const MARGIN_RIGHT = 4;
-const MARGIN_TOP = 2;
+const CHECKBOX_SIZE_IN_EM = 0.9375;
+const MARGIN_RIGHT_IN_EM = 0.25;
+const MARGIN_TOP_IN_EM = 0.25;
+const BORDER_RADIUS_IN_EM = 0.3125;
+const BORDER_IN_EM = 0.0625;
 
 export function checkboxPrefixEnabled(editor: Object): boolean {
-  return editor.hasQuery('getCheckboxPrefixWidth');
+  return editor.hasQuery('getCheckboxPrefixWidthInEm');
 }
 
 type TextCheckboxPrefix = {
@@ -75,8 +77,7 @@ export function renderCheckboxPrefix(
   const CHECKBOX_PREFIX_CLASSNAME = `checkbox-prefix-node-${
     isChecked ? 'checked' : 'unchecked'
   }`;
-  const prefixWidth = editor.getCheckboxPrefixWidth();
-  const marginLeft = prefixWidth - CHECKBOX_SIZE - MARGIN_RIGHT;
+  const prefixWidthInEm = editor.getCheckboxPrefixWidthInEm();
   return {
     className: CHECKBOX_PREFIX_CLASSNAME,
     styleNode: (
@@ -96,15 +97,19 @@ export function renderCheckboxPrefix(
           flex-shrink: 0;
           color: #FFF;
           font-weight: bold;
-          line-height: 12px;
+          line-height: 0.8em;
           display: inline-block;
           box-sizing: border-box;
-          width: ${CHECKBOX_SIZE}px;
-          height: ${CHECKBOX_SIZE}px;
-          border: 1px solid #BBB;
+          width: ${CHECKBOX_SIZE_IN_EM}em;
+          height: ${CHECKBOX_SIZE_IN_EM}em;
+          border: ${BORDER_IN_EM}em solid #BBB;
           ${isChecked ? 'background: #BBB;' : ''}
-          border-radius: 5px;
-          margin: ${MARGIN_TOP}px ${MARGIN_RIGHT}px 0 ${marginLeft}px;
+          border-radius: ${BORDER_RADIUS_IN_EM}em;
+          margin-right: ${MARGIN_RIGHT_IN_EM}em;
+          margin-top: ${MARGIN_TOP_IN_EM}em;
+          margin-left: ${prefixWidthInEm -
+            CHECKBOX_SIZE_IN_EM -
+            MARGIN_RIGHT_IN_EM}em;
           content: '${isChecked ? '✓' : ''}';
           text-align: center;
           cursor: pointer;
@@ -124,13 +129,15 @@ export function eventOffsetOnCheckbox(
   if (!checkboxPrefixEnabled(editor)) {
     return false;
   }
-  const prefixWidth = editor.getCheckboxPrefixWidth();
-  const marginLeft = prefixWidth - CHECKBOX_SIZE - MARGIN_RIGHT;
+  const prefixWidthInEm = editor.getCheckboxPrefixWidthInEm();
+  const marginLeftInEm =
+    prefixWidthInEm - CHECKBOX_SIZE_IN_EM - MARGIN_RIGHT_IN_EM;
+  const fontSizeInPx = editor.getCheckboxFontSizeInPx();
   return (
-    offsetX >= marginLeft &&
-    offsetX <= marginLeft + CHECKBOX_SIZE &&
-    offsetY >= MARGIN_TOP &&
-    offsetY <= MARGIN_TOP + CHECKBOX_SIZE
+    offsetX >= marginLeftInEm * fontSizeInPx &&
+    offsetX <= (marginLeftInEm + CHECKBOX_SIZE_IN_EM) * fontSizeInPx &&
+    offsetY >= MARGIN_TOP_IN_EM * fontSizeInPx &&
+    offsetY <= (MARGIN_TOP_IN_EM + CHECKBOX_SIZE_IN_EM) * fontSizeInPx
   );
 }
 
@@ -185,14 +192,23 @@ export function unprefixWithCheckboxByPath(editor: Object, path: Object): void {
 }
 
 export default function CheckboxPrefix({
-  prefixWidth,
+  prefixWidthInEm,
+  fontSizeInPx,
 }: {
-  prefixWidth: number,
+  prefixWidthInEm: number,
+  fontSizeInPx: number,
 }): Object {
+  invariant(
+    prefixWidthInEm >= CHECKBOX_SIZE_IN_EM + MARGIN_RIGHT_IN_EM,
+    'prefix width must be bigger than checkbox width + margin-right',
+  );
   return {
     queries: {
-      getCheckboxPrefixWidth(): number {
-        return prefixWidth;
+      getCheckboxPrefixWidthInEm(): number {
+        return prefixWidthInEm;
+      },
+      getCheckboxFontSizeInPx(): number {
+        return fontSizeInPx;
       },
     },
   };

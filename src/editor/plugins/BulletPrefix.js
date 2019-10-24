@@ -15,7 +15,7 @@ const BULLET_TEXT = '\u2022';
 const TEXT_PREFIXES = ['-', '*'];
 
 export function bulletPrefixEnabled(editor: Object): boolean {
-  return editor.hasQuery('getBulletPrefixWidth');
+  return editor.hasQuery('getBulletPrefixWidthInEm');
 }
 
 type TextBulletPrefix = {
@@ -53,7 +53,7 @@ export function renderBulletPrefix(
   }
 
   const BULLET_PREFIX_CLASSNAME = 'bullet-prefix-node';
-  const width = editor.getBulletPrefixWidth();
+  const widthInEm = editor.getBulletPrefixWidthInEm();
   return {
     className: BULLET_PREFIX_CLASSNAME,
     styleNode: (
@@ -63,7 +63,7 @@ export function renderBulletPrefix(
         .${BULLET_PREFIX_CLASSNAME}::before {
           flex-shrink: 0;
           display: inline-block;
-          width: ${width}px;
+          width: ${widthInEm}em;
           content: '${BULLET_TEXT}';
           text-align: center;
         }
@@ -111,14 +111,14 @@ export function unprefixWithBulletByPath(editor: Object, path: Object): void {
 }
 
 export default function BulletPrefix({
-  prefixWidth,
+  prefixWidthInEm,
 }: {
-  prefixWidth: number,
+  prefixWidthInEm: number,
 }): Object {
   return {
     queries: {
-      getBulletPrefixWidth(): number {
-        return prefixWidth;
+      getBulletPrefixWidthInEm(): number {
+        return prefixWidthInEm;
       },
     },
   };

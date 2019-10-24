@@ -14,7 +14,7 @@ export const INDENTABLE_DEFAULT_DATA = {
 };
 
 export function indentEnabled(editor: Object): boolean {
-  return editor.hasQuery('getIndentWidth');
+  return editor.hasQuery('getIndentWidthInEm');
 }
 
 export function renderIndentableStyle(editor: Object, node: Object): ?Object {
@@ -28,7 +28,7 @@ export function renderIndentableStyle(editor: Object, node: Object): ?Object {
   }
   return {
     display: 'flex',
-    marginLeft: indentLevel * editor.getIndentWidth(),
+    marginLeft: `${indentLevel * editor.getIndentWidthInEm()}em`,
   };
 }
 
@@ -133,10 +133,10 @@ export function getIndentEvent(
 }
 
 export default function Indentable({
-  indentWidth,
+  indentWidthInEm,
   maxIndentLevels,
 }: {
-  indentWidth: number,
+  indentWidthInEm: number,
   maxIndentLevels: number,
 }): Object {
   return {
@@ -144,8 +144,8 @@ export default function Indentable({
       getMaxIndentLevels(): number {
         return maxIndentLevels;
       },
-      getIndentWidth(): number {
-        return indentWidth;
+      getIndentWidthInEm(): number {
+        return indentWidthInEm;
       },
       getIndentableLevel(editor: Object, path: Object): ?number {
         const node = editor.value.document.getNode(path);

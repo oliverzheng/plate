@@ -13,8 +13,9 @@ import CheckboxPrefix from './plugins/CheckboxPrefix';
 
 const FILE_SAVE_DELAY = 1500; //ms
 const SHOW_SAVED_NOTICE = 2000; //ms
-const MAX_INDENT_LEVEL = 14;
-const INDENT_WIDTH = 20;
+const MAX_INDENT_LEVEL = 10;
+const INDENT_WIDTH_IN_EM = 1.25;
+const FONT_SIZE = 18;
 
 const schema = {
   document: {
@@ -34,11 +35,14 @@ const initialValue = Value.fromJSON({
 
 const plugins = [
   Indentable({
-    indentWidth: 20,
-    maxIndentLevels: 10,
+    indentWidthInEm: INDENT_WIDTH_IN_EM,
+    maxIndentLevels: MAX_INDENT_LEVEL,
   }),
-  BulletPrefix({prefixWidth: 20}),
-  CheckboxPrefix({prefixWidth: 20}),
+  BulletPrefix({prefixWidthInEm: INDENT_WIDTH_IN_EM}),
+  CheckboxPrefix({
+    prefixWidthInEm: INDENT_WIDTH_IN_EM,
+    fontSizeInPx: FONT_SIZE,
+  }),
   Line(),
 ];
 
@@ -84,7 +88,7 @@ export default function Page(props: Props) {
     );
   }
   return (
-    <div>
+    <div style={{lineHeight: '1.4em', fontSize: FONT_SIZE}}>
       <Editor
         schema={schema}
         value={value}
