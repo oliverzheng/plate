@@ -6,7 +6,7 @@ import {Editor} from 'slate-react';
 import {Value} from 'slate';
 
 import useDelayedCallback from './useDelayedCallback';
-import Line, {LINE_TYPE, DEFAULT_LINE_NODE} from './Line';
+import Line, {LINE_TYPE, createLine} from './Line';
 import {moveLineUp} from './shortcuts';
 import Indentable from './plugins/Indentable';
 import BulletPrefix from './plugins/BulletPrefix';
@@ -29,7 +29,7 @@ const schema = {
 
 const initialValue = Value.fromJSON({
   document: {
-    nodes: [DEFAULT_LINE_NODE],
+    nodes: [createLine()],
   },
 });
 

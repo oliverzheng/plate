@@ -33,23 +33,27 @@ import {
 } from './plugins/CheckboxPrefix';
 
 export const LINE_TYPE = 'line';
-export const DEFAULT_LINE_NODE = {
-  object: 'block',
-  type: LINE_TYPE,
-  data: {
-    ...INDENTABLE_DEFAULT_DATA,
-    ...BULLET_PREFIX_DEFAULT_DATA,
-    ...CHECKBOX_PREFIX_DEFAULT_DATA,
-  },
-  nodes: [
-    {
-      object: 'text',
-      text: '',
-    },
-  ],
-};
 
-function getLineTextNode(lineNode: Object): Object {
+export function createLine(text: string = '', data: Object): Object {
+  return {
+    object: 'block',
+    type: LINE_TYPE,
+    data: {
+      ...INDENTABLE_DEFAULT_DATA,
+      ...BULLET_PREFIX_DEFAULT_DATA,
+      ...CHECKBOX_PREFIX_DEFAULT_DATA,
+      ...data,
+    },
+    nodes: [
+      {
+        object: 'text',
+        text,
+      },
+    ],
+  };
+}
+
+export function getLineTextNode(lineNode: Object): Object {
   return lineNode.nodes.get(-1);
 }
 

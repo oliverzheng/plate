@@ -5,6 +5,7 @@ import React, {useState, useMemo} from 'react';
 import {Value} from 'slate';
 
 import Page from './Page';
+import {serializeDocument, deserializeToDocument} from './serializer';
 
 export type FileIO = {|
   listFiles: () => Array<string>, // list of file names
@@ -24,7 +25,8 @@ export default function App({fileIO}: Props) {
     if (!fileContents) {
       return null;
     }
-    return Value.fromJSON(JSON.parse(fileContents));
+    const document = deserializeToDocument(JSON.parse(fileContents));
+    return Value.create({document});
   }, [fileIO.readFile]);
   const [value, setValue] = useState(initialFileValue);
   return (
@@ -35,9 +37,10 @@ export default function App({fileIO}: Props) {
           setValue(newValue);
         }}
         onSave={newValue => {
+          const serialized = serializeDocument(newValue.document);
           fileIO.writeFile(
             DEFAULT_FILENAME,
-            JSON.stringify(newValue.toJSON(), null, '  '),
+            JSON.stringify(serialized, null, '  '),
           );
         }}
       />
