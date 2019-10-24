@@ -6,6 +6,7 @@ import invariant from 'invariant';
 import {List} from 'immutable';
 import {Block, Point} from 'slate';
 import Hotkeys from 'slate-hotkeys';
+import {isKeyHotkey} from 'is-hotkey';
 
 import {
   INDENTABLE_DEFAULT_DATA,
@@ -67,6 +68,9 @@ function getLinePathFromSubPath(subPath: Object): Object {
 }
 
 export default function Line() {
+  const isMetaCtrlUp = isKeyHotkey('meta+ctrl+up');
+  const isMetaCtrlDown = isKeyHotkey('meta+ctrl+down');
+
   return {
     renderBlock(props: Object, editor: Object, next: Function) {
       const {node, attributes, children} = props;
@@ -132,6 +136,50 @@ export default function Line() {
         return List([startingLinePath.get(0) + nth]);
       },
     },
+    commands: {
+      moveLinesByPath(
+        editor: Object,
+        startLinePath: Object,
+        endLinePath: Object,
+        offset: number,
+      ): boolean {
+        const {document} = editor.value;
+
+        const startIdx = startLinePath.get(0);
+        const endIdx = endLinePath.get(0) + 1;
+        invariant(
+          endIdx > startIdx,
+          `endIdx (${endIdx}) must be bigger than startIdx (${startIdx})`,
+        );
+        const totalLength = document.nodes.size;
+        const newStartIdx = startIdx + offset;
+        const newEndIdx = endIdx + offset;
+        if (newStartIdx < 0 || newEndIdx > totalLength) {
+          return false;
+        }
+
+        const documentPath = List([]);
+        if (offset < 0) {
+          for (let idx = startIdx; idx < endIdx; idx++) {
+            editor.moveNodeByPath(
+              startLinePath.set(0, idx),
+              documentPath,
+              idx + offset,
+            );
+          }
+        } else if (offset > 0) {
+          // Move nodes last-one-first if we are moving them further down
+          for (let idx = endIdx - 1; idx >= startIdx; idx--) {
+            editor.moveNodeByPath(
+              startLinePath.set(0, idx),
+              documentPath,
+              idx + offset,
+            );
+          }
+        }
+        return true;
+      },
+    },
     onKeyDown(event: Object, editor: Object, next: Function) {
       const {selection} = editor.value;
       const {start, end} = selection;
@@ -179,6 +227,15 @@ export default function Line() {
             indentByPath(editor, path, indentEvent.action),
           );
         }
+        return;
+      } else if (isMetaCtrlUp(event) || isMetaCtrlDown(event)) {
+        const startLinePath = getLinePathFromSubPath(selection.start.path);
+        const endLinePath = getLinePathFromSubPath(selection.end.path);
+        editor.moveLinesByPath(
+          startLinePath,
+          endLinePath,
+          isMetaCtrlUp(event) ? -1 : 1,
+        );
         return;
       }
 
