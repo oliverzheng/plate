@@ -83,14 +83,25 @@ export function renderCheckboxPrefix(
       <style
         dangerouslySetInnerHTML={{
           __html: `
+        ${
+          isChecked
+            ? ` .${CHECKBOX_PREFIX_CLASSNAME} > span {
+              color: #999;
+              text-decoration-line: line-through;
+            }
+          `
+            : ''
+        }
         .${CHECKBOX_PREFIX_CLASSNAME}::before {
-          color: #444;
+          color: #FFF;
+          font-weight: bold;
           line-height: 12px;
           display: inline-block;
           box-sizing: border-box;
           width: ${CHECKBOX_SIZE}px;
           height: ${CHECKBOX_SIZE}px;
-          border: 1px solid #CCC;
+          border: 1px solid #BBB;
+          ${isChecked ? 'background: #BBB;' : ''}
           border-radius: 5px;
           margin: ${MARGIN_TOP}px ${MARGIN_RIGHT}px 0 ${marginLeft}px;
           content: '${isChecked ? '✓' : ''}';
