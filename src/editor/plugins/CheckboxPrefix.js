@@ -93,6 +93,7 @@ export function renderCheckboxPrefix(
             : ''
         }
         .${CHECKBOX_PREFIX_CLASSNAME}::before {
+          flex-shrink: 0;
           color: #FFF;
           font-weight: bold;
           line-height: 12px;

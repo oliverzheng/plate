@@ -61,6 +61,7 @@ export function renderBulletPrefix(
         dangerouslySetInnerHTML={{
           __html: `
         .${BULLET_PREFIX_CLASSNAME}::before {
+          flex-shrink: 0;
           display: inline-block;
           width: ${width}px;
           content: '${BULLET_TEXT}';
