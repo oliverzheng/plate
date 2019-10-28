@@ -24,6 +24,13 @@
     "dist": "yarn compile && electron-builder",
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },
+  "lint-staged": {
+    "src/**/*.js": [
+      "prettier-eslint --prettier-last --write",
+      "eslint --cache --max-warnings=0",
+      "git add"
+    ]
+  },
   "devDependencies": {
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-flow": "^7.0.0",
@@ -43,7 +50,15 @@
     "eslint-plugin-react": "^7.16.0",
     "eslint-plugin-react-hooks": "^2.2.0",
     "flow-bin": "^0.107.0",
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.2",
     "prettier": "^1.18.2",
+    "prettier-eslint-cli": "^5.0.0",
     "webpack": "^4.41.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "flow && lint-staged"
+    }
   }
 }
