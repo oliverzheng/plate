@@ -32,4 +32,4 @@ const fileIO = {
   },
 };
 
-editor('root', fileIO);
+editor('app', fileIO);
