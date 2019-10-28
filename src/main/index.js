@@ -1,6 +1,9 @@
 // @flow
 // @format
 
+import {format as formatUrl} from 'url';
+import path from 'path';
+import nullthrows from 'nullthrows';
 import {app, BrowserWindow} from 'electron';
 import log from 'electron-log';
 
@@ -49,7 +52,7 @@ app.on('ready', async () => {
 
   if (isDevelopment) {
     mainWindow.loadURL(
-      `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`,
+      `http://localhost:${nullthrows(process.env.ELECTRON_WEBPACK_WDS_PORT)}`,
     );
   } else {
     mainWindow.loadURL(
