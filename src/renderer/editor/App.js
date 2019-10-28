@@ -30,7 +30,7 @@ export default function App({fileIO}: Props) {
   }, [fileIO.readFile]);
   const [value, setValue] = useState(initialFileValue);
   return (
-    <div>
+    <div style={{padding: 20}}>
       <Page
         value={value}
         onChange={newValue => {
