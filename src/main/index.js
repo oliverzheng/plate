@@ -1,32 +1,30 @@
 // @flow
 // @format
 
+/* eslint global-require: off */
+
 import {format as formatUrl} from 'url';
 import path from 'path';
 import nullthrows from 'nullthrows';
 import {app, BrowserWindow} from 'electron';
-import log from 'electron-log';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 let mainWindow = null;
-
-if (!isDevelopment) {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
-}
 
 if (isDevelopment) {
   require('electron-debug')();
 }
 
 const installExtensions = async () => {
+  // eslint-disable-next-line import/no-extraneous-dependencies
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
 
   return Promise.all(
     extensions.map(name => installer.default(installer[name], forceDownload)),
+    // eslint-disable-next-line no-console
   ).catch(console.log);
 };
 
@@ -64,19 +62,12 @@ app.on('ready', async () => {
     );
   }
 
-  // @TODO: Use 'ready-to-show' event
-  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-  mainWindow.webContents.on('did-finish-load', () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
-    if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.show();
-      mainWindow.focus();
-    }
-  });
+  if (process.env.START_MINIMIZED) {
+    mainWindow.minimize();
+  } else {
+    mainWindow.show();
+    mainWindow.focus();
+  }
 
   mainWindow.on('closed', () => {
     mainWindow = null;

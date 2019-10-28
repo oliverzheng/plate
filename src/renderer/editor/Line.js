@@ -4,7 +4,6 @@
 import React from 'react';
 import invariant from 'invariant';
 import {List} from 'immutable';
-import {Block, Point} from 'slate';
 import Hotkeys from 'slate-hotkeys';
 import {isKeyHotkey} from 'is-hotkey';
 
@@ -79,55 +78,51 @@ export default function Line() {
         return next();
       }
 
-      if (node.type === LINE_TYPE) {
-        const nodePath = editor.value.document.getPath(node);
-        const bulletPrefixRender = renderBulletPrefix(editor, node);
-        const checkboxPrefixRender = renderCheckboxPrefix(editor, node);
-        return (
-          <div
-            {...attributes}
-            className={[
-              bulletPrefixRender && bulletPrefixRender.className,
-              checkboxPrefixRender && checkboxPrefixRender.className,
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            style={{
-              display: 'flex',
-              ...renderIndentableStyle(editor, node),
-            }}
-            onClick={e => {
-              if (editor.findDOMNode(nodePath) !== e.nativeEvent.srcElement) {
-                return;
+      const nodePath = editor.value.document.getPath(node);
+      const bulletPrefixRender = renderBulletPrefix(editor, node);
+      const checkboxPrefixRender = renderCheckboxPrefix(editor, node);
+      return (
+        // TODO when keyboard shortcut is added, this lint can be removed
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+        <div
+          {...attributes}
+          className={[
+            bulletPrefixRender && bulletPrefixRender.className,
+            checkboxPrefixRender && checkboxPrefixRender.className,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          style={{
+            display: 'flex',
+            ...renderIndentableStyle(editor, node),
+          }}
+          onClick={e => {
+            // Not sure what else to do here
+            // eslint-disable-next-line react/no-find-dom-node
+            if (editor.findDOMNode(nodePath) !== e.nativeEvent.srcElement) {
+              return;
+            }
+            if (hasCheckboxPrefix(editor, node)) {
+              if (
+                eventOffsetOnCheckbox(
+                  editor,
+                  e.nativeEvent.offsetX,
+                  e.nativeEvent.offsetY,
+                )
+              ) {
+                prefixWithCheckboxByPath(editor, nodePath, null /* toggle */);
+                // Can't prevent Slate from changing focus. Its event handlers
+                // trigger first onmousedown
               }
-              if (hasCheckboxPrefix(editor, node)) {
-                if (
-                  eventOffsetOnCheckbox(
-                    editor,
-                    e.nativeEvent.offsetX,
-                    e.nativeEvent.offsetY,
-                  )
-                ) {
-                  prefixWithCheckboxByPath(editor, nodePath, null /*toggle*/);
-                  // Can't prevent Slate from changing focus. Its event handlers
-                  // trigger first onmousedown
-                }
-              }
-            }}>
-            {bulletPrefixRender && bulletPrefixRender.styleNode}
-            {checkboxPrefixRender && checkboxPrefixRender.styleNode}
-            {children}
-          </div>
-        );
-      }
+            }
+          }}>
+          {bulletPrefixRender && bulletPrefixRender.styleNode}
+          {checkboxPrefixRender && checkboxPrefixRender.styleNode}
+          {children}
+        </div>
+      );
     },
     queries: {
-      getLinePathFromDescendentPath(
-        editor: Object,
-        descendentPath: Object,
-      ): Object {
-        return descendentPath.setSize(1);
-      },
       getLinePathNthAway(
         editor: Object,
         startingLinePath: Object,
@@ -184,11 +179,10 @@ export default function Line() {
       const {selection} = editor.value;
       const {start, end} = selection;
       const startLinePath = getLinePathFromSubPath(start.path);
+      const endLinePath = getLinePathFromSubPath(end.path);
       const lineNode = editor.value.document.getNode(startLinePath);
 
       const getSelectedNodes = () => {
-        const startLinePath = editor.getLinePathFromDescendentPath(start.path);
-        const endLinePath = editor.getLinePathFromDescendentPath(end.path);
         const totalCount = endLinePath.get(0) - startLinePath.get(0) + 1;
         const nodePaths = Array.from(Array(totalCount)).map((_, i) =>
           editor.getLinePathNthAway(startLinePath, i),
@@ -213,10 +207,12 @@ export default function Line() {
         if (hasBulletPrefix(editor, lineNode)) {
           unprefixWithBulletByPath(editor, startLinePath);
           return;
-        } else if (hasCheckboxPrefix(editor, lineNode)) {
+        }
+        if (hasCheckboxPrefix(editor, lineNode)) {
           unprefixWithCheckboxByPath(editor, startLinePath);
           return;
-        } else if (canUnindent(editor, startLinePath)) {
+        }
+        if (canUnindent(editor, startLinePath)) {
           indentByPath(editor, startLinePath, 'unindent');
           return;
         }
@@ -229,8 +225,6 @@ export default function Line() {
         }
         return;
       } else if (isMetaCtrlUp(event) || isMetaCtrlDown(event)) {
-        const startLinePath = getLinePathFromSubPath(selection.start.path);
-        const endLinePath = getLinePathFromSubPath(selection.end.path);
         editor.moveLinesByPath(
           startLinePath,
           endLinePath,
@@ -239,7 +233,7 @@ export default function Line() {
         return;
       }
 
-      return next();
+      next();
     },
     normalizeNode(node: Object, editor: Object, next: Function) {
       if (node.type !== LINE_TYPE) {
@@ -262,7 +256,8 @@ export default function Line() {
           removeAllPrefixes();
           prefixWithBulletByPath(editor, linePath);
         };
-      } else if (textCheckboxPrefix) {
+      }
+      if (textCheckboxPrefix) {
         return () => {
           editor.removeTextByKey(textNode.key, 0, textCheckboxPrefix.length);
           removeAllPrefixes();

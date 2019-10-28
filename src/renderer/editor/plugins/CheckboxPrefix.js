@@ -2,10 +2,7 @@
 // @format
 
 import React from 'react';
-import nullthrows from 'nullthrows';
 import invariant from 'invariant';
-import {Block, Inline, Text} from 'slate';
-import Hotkeys from 'slate-hotkeys';
 
 const CHECKBOX_PREFIX_DATA_KEY = 'checkboxPrefix';
 export const CHECKBOX_PREFIX_DEFAULT_DATA = {
@@ -21,6 +18,22 @@ const BORDER_IN_EM = 0.0625;
 
 export function checkboxPrefixEnabled(editor: Object): boolean {
   return editor.hasQuery('getCheckboxPrefixWidthInEm');
+}
+
+export function hasCheckboxPrefix(editor: Object, node: Object): boolean {
+  if (!checkboxPrefixEnabled(editor)) {
+    return false;
+  }
+
+  return node.data.get(CHECKBOX_PREFIX_DATA_KEY) != null; // false = unchecked
+}
+
+export function isCheckboxPrefixChecked(editor: Object, node: Object): boolean {
+  if (!checkboxPrefixEnabled(editor)) {
+    return false;
+  }
+
+  return node.data.get(CHECKBOX_PREFIX_DATA_KEY);
 }
 
 type TextCheckboxPrefix = {
@@ -139,22 +152,6 @@ export function eventOffsetOnCheckbox(
     offsetY >= MARGIN_TOP_IN_EM * fontSizeInPx &&
     offsetY <= (MARGIN_TOP_IN_EM + CHECKBOX_SIZE_IN_EM) * fontSizeInPx
   );
-}
-
-export function hasCheckboxPrefix(editor: Object, node: Object): boolean {
-  if (!checkboxPrefixEnabled(editor)) {
-    return false;
-  }
-
-  return node.data.get(CHECKBOX_PREFIX_DATA_KEY) != null; // false = unchecked
-}
-
-export function isCheckboxPrefixChecked(editor: Object, node: Object): boolean {
-  if (!checkboxPrefixEnabled(editor)) {
-    return false;
-  }
-
-  return node.data.get(CHECKBOX_PREFIX_DATA_KEY);
 }
 
 export function prefixWithCheckboxByPath(

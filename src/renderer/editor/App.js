@@ -4,7 +4,7 @@
 import React, {useState, useMemo} from 'react';
 import {Value} from 'slate';
 
-import Page from './Page';
+import Page, {INITIAL_VALUE} from './Page';
 import {serializeDocument, deserializeToDocument} from './serializer';
 
 export type FileIO = {|
@@ -32,7 +32,7 @@ export default function App({fileIO}: Props) {
   return (
     <div style={{padding: 20}}>
       <Page
-        value={value}
+        value={value || INITIAL_VALUE}
         onChange={newValue => {
           setValue(newValue);
         }}

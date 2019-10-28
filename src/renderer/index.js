@@ -27,6 +27,8 @@ const fileIO = {
   writeFile: (filename, contents) => {
     const filepath = path.join(USER_DATA_DIR, FILES_DIR, filename);
     mkdirp.sync(path.join(USER_DATA_DIR, FILES_DIR));
+    // Temporary for debugging
+    // eslint-disable-next-line no-console
     console.log('wrote', filepath);
     fs.writeFileSync(filepath, contents, 'utf8');
   },

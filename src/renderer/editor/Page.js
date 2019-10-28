@@ -11,8 +11,8 @@ import Indentable from './plugins/Indentable';
 import BulletPrefix from './plugins/BulletPrefix';
 import CheckboxPrefix from './plugins/CheckboxPrefix';
 
-const FILE_SAVE_DELAY = 1500; //ms
-const SHOW_SAVED_NOTICE = 2000; //ms
+const FILE_SAVE_DELAY = 1500; // ms
+const SHOW_SAVED_NOTICE = 2000; // ms
 const MAX_INDENT_LEVEL = 10;
 const INDENT_WIDTH_IN_EM = 1.25;
 const FONT_SIZE = 18;
@@ -27,7 +27,7 @@ const schema = {
   },
 };
 
-const initialValue = Value.fromJSON({
+export const INITIAL_VALUE = Value.fromJSON({
   document: {
     nodes: [createLine()],
   },
@@ -53,7 +53,7 @@ type Props = {
 };
 
 export default function Page(props: Props) {
-  const value = props.value || initialValue;
+  const {value, onSave} = props;
 
   const [showSaved, setShowSaved] = useState(false);
   const delayHideSavedNotice = useDelayedCallback(
@@ -68,11 +68,11 @@ export default function Page(props: Props) {
     FILE_SAVE_DELAY,
     useCallback(
       valueToSave => {
-        props.onSave(valueToSave);
+        onSave(valueToSave);
         setShowSaved(true);
         delayHideSavedNotice();
       },
-      [props.onSave],
+      [onSave],
     ),
   );
 
@@ -103,7 +103,7 @@ export default function Page(props: Props) {
         plugins={plugins}
       />
       <p>
-        <button onClick={() => setShowDebug(!showDebug)}>
+        <button onClick={() => setShowDebug(!showDebug)} type="button">
           {showDebug ? 'Hide debug' : 'Show debug'}
         </button>
       </p>

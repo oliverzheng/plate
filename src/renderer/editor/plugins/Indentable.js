@@ -1,10 +1,8 @@
 // @flow
 // @format
 
-import React from 'react';
 import nullthrows from 'nullthrows';
 import invariant from 'invariant';
-import {Point} from 'slate';
 import Hotkeys from 'slate-hotkeys';
 
 const INDENT_LEVEL_DATA_KEY = 'indentLevel';
