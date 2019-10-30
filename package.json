@@ -1,6 +1,19 @@
 {
   "name": "plate",
-  "version": "0.1.0",
+  "version": "0.0.1-snapshot",
+  "description": "A todo app with Dropbox Paper-like editing experience",
+  "author": {
+    "name": "Oliver Zheng",
+    "email": "plate@oliverzheng.com"
+  },
+  "build": {
+    "appId": "com.oliverzheng.plate",
+    "productName": "Plate",
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "generateUpdatesFilesForAllChannels": true
+  },
   "private": true,
   "dependencies": {
     "electron-debug": "^3.0.1",
