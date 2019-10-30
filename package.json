@@ -14,7 +14,8 @@
     "react-dom": "^16.9.0",
     "slate": "^0.47.8",
     "slate-hotkeys": "^0.2.9",
-    "slate-react": "^0.22.8"
+    "slate-react": "^0.22.8",
+    "source-map-support": "^0.5.15"
   },
   "scripts": {
     "flow": "flow",
