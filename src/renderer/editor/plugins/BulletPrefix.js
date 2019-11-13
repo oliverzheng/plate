@@ -7,6 +7,8 @@ const BULLET_PREFIX_DATA_KEY = 'bulletPrefix';
 export const BULLET_PREFIX_DEFAULT_DATA = {
   [BULLET_PREFIX_DATA_KEY]: false,
 };
+const WIDTH_IN_EM = 0.9375;
+const MARGIN_RIGHT_IN_EM = 0.25;
 const BULLET_TEXT = '\u2022';
 
 export function bulletPrefixEnabled(editor: Object): boolean {
@@ -66,7 +68,9 @@ export function renderBulletPrefix(
         .${BULLET_PREFIX_CLASSNAME}::before {
           flex-shrink: 0;
           display: inline-block;
-          width: ${widthInEm}em;
+          width: ${WIDTH_IN_EM}em;
+          margin-right: ${MARGIN_RIGHT_IN_EM}em;
+          margin-left: ${widthInEm - WIDTH_IN_EM - MARGIN_RIGHT_IN_EM}em;
           content: '${BULLET_TEXT}';
           text-align: center;
         }

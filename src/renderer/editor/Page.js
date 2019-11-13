@@ -14,7 +14,7 @@ import CheckboxPrefix from './plugins/CheckboxPrefix';
 const FILE_SAVE_DELAY = 1500; // ms
 const SHOW_SAVED_NOTICE = 2000; // ms
 const MAX_INDENT_LEVEL = 10;
-const INDENT_WIDTH_IN_EM = 1.25;
+const INDENT_WIDTH_IN_EM = 2;
 const FONT_SIZE = 18;
 
 const schema = {
